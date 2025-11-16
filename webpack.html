@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Webpack Notes</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <h1><a href="index.html">Frontend Notes</a></h1>
+      <p class="subtitle">Webpack — Core Concepts & Optimizations</p>
+    </div>
+  </header>
+
+  <main class="container">
+    <article class="card">
+      <div class="note-header">
+        <div>
+          <h2>Webpack — Core Concepts</h2>
+          <p class="note-meta">Quick reference for loaders, plugins, optimization, and module federation.</p>
+        </div>
+        <div class="note-meta">Updated: <time datetime="2025-11-16">Nov 16, 2025</time></div>
+      </div>
+
+      <section>
+        <h3>Overview</h3>
+        <p>Webpack creates a dependency graph from your entry points and emits one or more bundles (chunks). Use loaders to transform non-JS files and plugins to hook into the build lifecycle.</p>
+      </section>
+
+      <section>
+        <h3>Important Concepts</h3>
+        <ul>
+          <li><strong>Loaders</strong> — per-module transforms (babel-loader, css-loader)</li>
+          <li><strong>Plugins</strong> — lifecycle hooks (MiniCssExtractPlugin, HtmlWebpackPlugin)</li>
+          <li><strong>Code splitting</strong> — dynamic import(), SplitChunks</li>
+          <li><strong>Asset modules</strong> — built-in file handling (webpack 5)</li>
+        </ul>
+      </section>
+
+      <section>
+        <h3>Snippets</h3>
+        <pre><code>// Example: dynamic import
+async function loadWidget(){
+  const mod = await import('./widget');
+  mod.init();
+}</code></pre>
+      </section>
+
+      <section>
+        <h3>Related notes</h3>
+        <ul>
+          <li><a href="code-splitting.html">Code Splitting</a></li>
+          <li><a href="module-federation.html">Module Federation</a></li>
+          <li><a href="performance.html">Performance</a></li>
+        </ul>
+      </section>
+    </article>
+
+    <footer class="card small">
+      <p><a href="index.html">← Back to index</a></p>
+    </footer>
+  </main>
+</body>
+</html>

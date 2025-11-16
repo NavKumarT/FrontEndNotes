@@ -1,0 +1,65 @@
+:root{
+  --bg:#f7fbff;
+  --card:#ffffff;
+  --muted:#6b7280;
+  --accent:#0b69ff;
+  --maxw:1000px;
+  --radius:10px;
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  background:var(--bg);
+  color:#111827;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+}
+
+.container{
+  max-width:var(--maxw);
+  margin:36px auto;
+  padding:0 20px;
+}
+
+.site-header{
+  background:var(--card);
+  border-radius:var(--radius);
+  box-shadow:0 6px 20px rgba(12, 22, 55, 0.06);
+  margin:20px auto;
+  padding:18px 20px;
+}
+
+.site-header h1{ margin:0; font-size:20px; }
+.site-header .subtitle{ margin:6px 0 0; color:var(--muted); font-size:13px; }
+
+a{ color:var(--accent); text-decoration:none; }
+a:hover{ text-decoration:underline; }
+
+.card{
+  background:var(--card);
+  border-radius:var(--radius);
+  padding:18px;
+  box-shadow:0 6px 20px rgba(12, 22, 55, 0.04);
+  margin-bottom:20px;
+}
+
+.small{font-size:13px; color:var(--muted); text-align:center}
+
+.notes-list{ list-style:none; padding:0; margin:12px 0 0 }
+.notes-list li{ padding:10px 0; border-bottom:1px solid rgba(15,23,42,0.03) }
+.notes-list li:last-child{ border-bottom:0 }
+
+.note-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:16px;
+}
+.note-meta{ color:var(--muted); font-size:13px }
+
+.h1{ font-size:18px; margin:0 0 8px }
+h2{ margin-top:0 }
+pre{ background:#0f172a; color:#e6eef8; padding:12px; border-radius:8px; overflow:auto; font-size:13px }
+code{ background:#f3f4f6; padding:3px 6px; border-radius:4px; font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace; font-size:13px }
