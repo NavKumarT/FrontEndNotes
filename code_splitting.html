@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Code Splitting & Optimization — Notes</title>
+  <style>
+    :root{ --bg:#fbfdff; --card:#fff; --muted:#6b7280; --accent:#0b69ff; --maxw:1000px; --r:12px }
+    *{box-sizing:border-box}
+    body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial; background:var(--bg); color:#0b1220; margin:0}
+    .wrap{max-width:var(--maxw); margin:36px auto; padding:20px}
+    header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
+    header h1{margin:0;font-size:20px}
+    header a{color:var(--accent);text-decoration:none;font-weight:600}
+    .card{background:var(--card); border-radius:var(--r); padding:20px; box-shadow:0 8px 30px rgba(2,6,23,0.06); margin-bottom:18px}
+    h2{margin-top:0}
+    pre{background:#0f172a;color:#e6eef8;padding:12px;border-radius:8px;overflow:auto;font-size:13px}
+    code{background:#f3f4f6;padding:3px 6px;border-radius:4px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace}
+    ul{line-height:1.6}
+    .muted{color:var(--muted);font-size:13px}
+    .columns{display:grid;grid-template-columns:1fr 320px;gap:18px}
+    @media (max-width:900px){.columns{grid-template-columns:1fr}}
+    .sidebar .card{position:sticky; top:20px}
+    .pill{display:inline-block;background:#eef6ff;color:var(--accent);padding:6px 8px;border-radius:999px;font-size:12px;margin-right:8px}
+    footer{font-size:13px;color:var(--muted);text-align:center;margin-top:18px}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>Code Splitting & Optimization</h1>
+        <div class="muted">Practical notes — Webpack, SSR, Module Federation, Performance</div>
+      </div>
+      <nav>
+        <a href="index.html">← Back</a>
+      </nav>
+    </header>
+
+    <div class="columns">
+      <main>
+
+        <section class="card">
+          <h2>1. What code splitting is (precise)</h2>
+          <p>Code splitting divides your JavaScript (and associated assets) into multiple <strong>chunks</strong> that are loaded on demand rather than shipping one large bundle. Benefits:</p>
+          <ul>
+            <li>Smaller initial network payload → faster First Contentful Paint (FCP) and Largest Contentful Paint (LCP)</li>
+            <li>Reduced parse & compile cost → faster Time-to-Interactive (TTI)</li>
+            <li>Better cacheability — vendor/runtime chunks change less frequently</li>
+          </ul>
+        </section>
+
+        <section class="card">
+          <h2>2. Internals: how Webpack creates chunks & runtime</h2>
+          <p>Webpack builds a <em>module graph</em>. Split points partition the graph into chunks. The <strong>runtime</strong> bootstrap (in main bundle or separate runtime chunk) maps chunk ids to URLs, inserts script tags, and resolves dynamic <code>import()</code> promises.</p>
+          <p class="muted">Tip: keep the runtime separate (<code>runtimeChunk: 'single'</code>) to stabilize hashes and improve caching.</p>
+        </section>
+
+        <section class="card">
+          <h2>3. Ways to create split points</h2>
+          <h3>Dynamic <code>import()</code> (preferred)</h3>
+          <pre><code>// runtime split when user navigates
+const mod = await import('./heavyModule');
+mod.init();</code></pre>
+
+          <h3><code>React.lazy</code> + <code>Suspense</code></h3>
+          <p>Convenient for component-level lazy loading. Not SSR-friendly by itself — use <code>@loadable/component</code> for SSR.</p>
+
+          <h3>Magic comments</h3>
+          <pre><code>import(
+  /* webpackChunkName: "chart", webpackPrefetch: true */
+  './heavyChart'
+)</code></pre>
+          <ul>
+            <li><code>webpackChunkName</code> — friendly name</li>
+            <li><code>webpackPrefetch</code> — low-priority fetch during idle</li>
+            <li><code>webpackPreload</code> — high-priority preload (use sparingly)</li>
+          </ul>
+
+          <h3>Static multiple entries</h3>
+          <p>Use for multi-page apps (MPA) where pages are truly independent.</p>
+        </section>
+
+        <section class="card">
+          <h2>4. SplitChunksPlugin deep dive</h2>
+          <p><strong>SplitChunks</strong> extracts common modules into shared chunks. Key options:</p>
+          <ul>
+            <li><code>chunks</code>: <code>all</code> recommended (splits async + initial)</li>
+            <li><code>cacheGroups</code>: create vendor/commons groups</li>
+            <li><code>minSize</code>, <code>maxSize</code>, <code>minChunks</code></li>
+          </ul>
+          <pre><code>optimization: {
+  splitChunks: {
+    chunks: 'all',
+    minSize: 20000,
+    maxSize: 244000,
+    cacheGroups: {
+      vendors: { test: /node_modules/, name: 'vendors', priority: -10 },
+      commons: { test: /src\/components/, minChunks: 2, name: 'commons' }
+    }
+  }
+}</code></pre>
+          <p class="muted">Tradeoff: more split points → smaller bundles but more requests. Tune based on HTTP/2 availability and your users' networks.</p>
+        </section>
+
+        <section class="card">
+          <h2>5. Runtime chunk & long-term caching</h2>
+          <p>Use <code>runtimeChunk: 'single'</code> + <code>moduleIds: 'deterministic'</code> and content-hashed filenames to stabilize asset hashes and improve cache hits.</p>
+          <pre><code>output: {
+  filename: 'js/[name].[contenthash:8].js',
+  chunkFilename: 'js/[name].[contenthash:8].chunk.js'
+}
+optimization: { runtimeChunk: 'single', moduleIds: 'deterministic' }</code></pre>
+        </section>
+
+        <section class="card">
+          <h2>6. Preload vs Prefetch vs Preconnect</h2>
+          <ul>
+            <li><code>&lt;link rel="preload"&gt;</code>: high-priority, use for critical next resources</li>
+            <li><code>&lt;link rel="prefetch"&gt;</code>: low-priority, idle-time fetch for likely-next navigations</li>
+            <li><code>&lt;link rel="preconnect"&gt;</code>: warm up DNS/TCP/TLS to a CDN</li>
+          </ul>
+        </section>
+
+        <section class="card">
+          <h2>7. SSR & async chunks</h2>
+          <p>Server render must include scripts for async chunks used during render. Recommended approach:</p>
+          <ul>
+            <li>Use <code>@loadable/component</code> to collect chunk info during render and inject scripts</li>
+            <li>React.lazy alone is not SSR-friendly</li>
+            <li>For Module Federation SSR, either bundle remotes into the server build or fetch remote bundles at render time</li>
+          </ul>
+        </section>
+
+        <section class="card">
+          <h2>8. Module Federation interactions</h2>
+          <ul>
+            <li>Keep <code>remoteEntry.js</code> tiny — heavy code should be in lazy chunks</li>
+            <li>Remotes should internally code-split heavy features</li>
+            <li>Share singletons (React) to avoid duplication & context issues</li>
+          </ul>
+        </section>
+
+        <section class="card">
+          <h2>9. Dev vs Prod</h2>
+          <p><strong>Dev:</strong> fast source maps (eval), HMR, small incremental builds. <strong>Prod:</strong> enable splitChunks, runtimeChunk, minify, contenthash filenames, precompression in CI.</p>
+        </section>
+
+        <section class="card">
+          <h2>10. Debugging & diagnostics</h2>
+          <ul>
+            <li>Run <code>webpack-bundle-analyzer</code> for host & remotes</li>
+            <li>Inspect waterfall in DevTools / WebPageTest</li>
+            <li>Profile parse/execute time with DevTools Performance</li>
+            <li>Simulate Slow 4G + CPU throttling</li>
+            <li>Check RUM for LCP / parse durations</li>
+          </ul>
+        </section>
+
+        <section class="card">
+          <h2>11. Production-ready config (concise)</h2>
+          <pre><code>// snippets only
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
+const TerserPlugin = require('terser-webpack-plugin');
+
+module.exports = {
+  mode: 'production',
+  output: { filename: 'js/[name].[contenthash:8].js', chunkFilename: 'js/[name].[contenthash:8].chunk.js' },
+  optimization: {
+    runtimeChunk: 'single',
+    moduleIds: 'deterministic',
+    splitChunks: { chunks: 'all', minSize: 20000, maxSize: 244000 },
+    minimizer: [new TerserPlugin({parallel:true}), new CssMinimizerPlugin()]
+  },
+  plugins:[ new MiniCssExtractPlugin({filename:'css/[name].[contenthash:8].css'}) ]
+}
+</code></pre>
+        </section>
+
+        <section class="card">
+          <h2>12. Checklist & quick fixes</h2>
+          <ul>
+            <li>Convert heavy routes/components to <code>import()</code> / <code>React.lazy</code></li>
+            <li>Keep <code>remoteEntry.js</code> tiny in MF contexts</li>
+            <li>Use <code>runtimeChunk: 'single'</code> and deterministic ids</li>
+            <li>Add bundle-size checks to CI and run nightly bundle analysis</li>
+            <li>Precompress artifacts (.br/.gz) in CI and serve via CDN</li>
+          </ul>
+        </section>
+
+        <section class="card">
+          <h2>13. Real-world scenarios</h2>
+          <p><strong>Slow initial load:</strong> find large modules in main chunk (e.g., <code>monaco-editor</code>) and lazy-load them.</p>
+          <p><strong>Multiple React versions:</strong> ensure <code>shared.react</code> singleton via MF or externalize React to host.</p>
+          <p><strong>404 on chunk load:</strong> use versioned remoteEntry URLs or manifests to avoid stale CDN caches.</p>
+        </section>
+
+        <section class="card">
+          <h2>14. Final tips</h2>
+          <ul>
+            <li>Measure both network & CPU (parse/execute) — on slow devices CPU matters more</li>
+            <li>Avoid thousands of tiny chunks — aim for a few medium-sized, cacheable chunks</li>
+            <li>Use prefetch/preload wisely and measure impact</li>
+          </ul>
+        </section>
+
+      </main>
+
+      <aside class="sidebar">
+        <div class="card">
+          <h3>Quick links</h3>
+          <ul>
+            <li><a href="module-federation.html">Module Federation</a></li>
+            <li><a href="code-splitting.html">Code Splitting</a></li>
+            <li><a href="performance.html">Performance</a></li>
+            <li><a href="hmr.html">HMR</a></li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>Short checklist</h3>
+          <p><span class="pill">Checklist</span></p>
+          <ul>
+            <li>Lazy-load heavy features</li>
+            <li>Share singletons for React</li>
+            <li>Run bundle analyzer</li>
+            <li>Precompress in CI</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>Generated</h3>
+          <p class="muted">Date: 2025-11-16</p>
+        </div>
+      </aside>
+    </div>
+
+    <footer class="muted">© 2025 Your Notes — add this file as <code>code-splitting.html</code> to your repo and link it from index.html</footer>
+  </div>
+</body>
+</html>

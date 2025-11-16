@@ -1,113 +1,39 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>My Webpack & Microfrontends Notes</title>
-
-  <style>
-    body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      max-width: 800px;
-      margin: 40px auto;
-      padding: 0 20px;
-      line-height: 1.7;
-      background-color: #f8f9fa;
-      color: #222;
-    }
-
-    h1, h2, h3 {
-      color: #111;
-    }
-
-    nav {
-      background: white;
-      padding: 15px 20px;
-      border-radius: 10px;
-      margin-bottom: 30px;
-      box-shadow: 0 3px 10px rgba(0,0,0,0.08);
-    }
-
-    nav a {
-      margin-right: 16px;
-      text-decoration: none;
-      color: #0056ff;
-      font-weight: 600;
-    }
-
-    .card {
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 3px 10px rgba(0,0,0,0.06);
-      margin-bottom: 25px;
-    }
-
-    footer {
-      margin-top: 40px;
-      font-size: 14px;
-      text-align: center;
-      opacity: 0.7;
-    }
-  </style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>My Frontend Notes — Index</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
-
 <body>
+  <header class="site-header">
+    <div class="container">
+      <h1><a href="index.html">Frontend Notes</a></h1>
+      <p class="subtitle">Webpack · Microfrontends · Performance · Interviews</p>
+    </div>
+  </header>
 
-  <nav>
-    <a href="#">Home</a>
-    <a href="#webpack">Webpack</a>
-    <a href="#mfe">Microfrontends</a>
-    <a href="#performance">Performance</a>
-  </nav>
+  <main class="container">
+    <section class="card">
+      <h2>Notes Index</h2>
+      <p>Click a topic to open a dedicated note page.</p>
 
-  <h1>My Webpack, Module Federation & Frontend Notes</h1>
-  <p>
-    This is my personal knowledge base for senior frontend engineering topics.  
-    I will keep adding detailed notes as I learn.
-  </p>
+      <ul class="notes-list">
+        <li><a href="webpack.html">Webpack — Core Concepts & Optimizations</a></li>
+        <li><a href="code_splitting.html">Code Splitting</a></li>
+        <li><a href="plugins.html">Plugins — Deep Notes</a></li>
+        <li><a href="module-federation.html">Module Federation (MFE)</a></li>
+        <li><a href="federated-event-bus.html">Federated Event Bus</a></li>
+        <li><a href="code-splitting.html">Code Splitting</a></li>
+        <li><a href="hmr.html">Hot Module Replacement (HMR)</a></li>
+        <li><a href="performance.html">Performance Optimization</a></li>
+      </ul>
+    </section>
 
-  <!-- Webpack Section -->
-  <div id="webpack" class="card">
-    <h2>Webpack Notes</h2>
-    <ul>
-      <li>Core Architecture</li>
-      <li>Loaders & Plugins</li>
-      <li>Code Splitting</li>
-      <li>HMR</li>
-      <li>Build Optimization</li>
-      <li>Module Federation</li>
-    </ul>
-  </div>
-
-  <!-- MFE Section -->
-  <div id="mfe" class="card">
-    <h2>Microfrontends (MFE)</h2>
-    <ul>
-      <li>Module Federation Concepts</li>
-      <li>Host & Remotes</li>
-      <li>Shared Dependencies</li>
-      <li>Dynamic Remotes</li>
-      <li>Federated Event Bus</li>
-      <li>CI/CD & Deployment Patterns</li>
-    </ul>
-  </div>
-
-  <!-- Performance Section -->
-  <div id="performance" class="card">
-    <h2>Performance Optimization</h2>
-    <ul>
-      <li>Code Splitting Strategies</li>
-      <li>Image Optimization</li>
-      <li>Long-term Caching</li>
-      <li>JS Execution Cost Reduction</li>
-      <li>Web Vitals Monitoring</li>
-    </ul>
-  </div>
-
-  <footer>
-    © 2025 My Engineering Notes
-  </footer>
-
+    <footer class="card small">
+      <p>Generated: <time datetime="2025-11-16">2025-11-16</time> — © Your Name</p>
+    </footer>
+  </main>
 </body>
 </html>
